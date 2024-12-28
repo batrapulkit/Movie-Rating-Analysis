@@ -13,9 +13,20 @@ import nltk
 from scipy.sparse import hstack
 
 # Ensure that the required NLTK resources are downloaded
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
+try:
+    nltk.data.find('corpora/wordnet')
+except LookupError:
+    nltk.download('wordnet')
 
 # Load the dataset
 df = pd.read_csv('movies.csv')
