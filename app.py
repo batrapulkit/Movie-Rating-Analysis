@@ -1,21 +1,11 @@
 import streamlit as st
 import pickle
 import random
-import pandas as pd
 import numpy as np
 
 # Load the trained model
 with open('sentiment_model.pkl', 'rb') as file:
     model = pickle.load(file)
-
-# Function to categorize the rating based on the model prediction
-def categorize_rating(rating):
-    if rating > 7:
-        return 'Good'
-    elif 4.5 <= rating <= 6.9:
-        return 'Neutral'
-    else:
-        return 'Bad'
 
 # Streamlit interface
 st.title('Movie Rating Prediction')
