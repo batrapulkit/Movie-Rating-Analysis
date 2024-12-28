@@ -4,16 +4,9 @@ import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-import nltk
-from nltk.tokenize import word_tokenize
+from textblob import Word
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 import random
-
-# Ensure necessary NLTK resources are downloaded
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
 
 # Load the pre-trained model and dataset
 @st.cache_resource
@@ -45,16 +38,15 @@ def load_data():
 
 # Preprocess text (title)
 def preprocess_text(text):
-    # Tokenization
-    tokens = word_tokenize(str(text).lower())
-    
-    # Remove stopwords and non-alphabetic tokens
+    # Tokenization using simple split, no external library needed
+    tokens = text.split()
+
+    # Remove stopwords
     stop_words = set(stopwords.words('english'))
-    tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
+    tokens = [word.lower() for word in tokens if word.isalpha() and word.lower() not in stop_words]
     
-    # Lemmatization
-    lemmatizer = WordNetLemmatizer()
-    tokens = [lemmatizer.lemmatize(token) for token in tokens]
+    # Lemmatization with TextBlob (it performs lemmatization)
+    tokens = [Word(word).lemmatize() for word in tokens]
     
     return ' '.join(tokens)
 
