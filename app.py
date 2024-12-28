@@ -12,7 +12,7 @@ from nltk.stem import WordNetLemmatizer
 import nltk
 from scipy.sparse import hstack
 
-# Download NLTK data
+# Ensure that the required NLTK resources are downloaded
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
