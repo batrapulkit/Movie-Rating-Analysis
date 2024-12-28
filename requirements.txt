@@ -1,7 +1,9 @@
 streamlit
 pandas
-numpy
-nltk
 scikit-learn
-flask
-
+nltk
+numpy
+scipy
+matplotlib
+seaborn
+wordcloud
