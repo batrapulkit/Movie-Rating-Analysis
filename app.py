@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 import pickle
 import numpy as np
-from scipy.sparse import hstack
 from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import hstack
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -11,15 +11,23 @@ from nltk.stem import WordNetLemmatizer
 # Load the pre-trained model and vectorizer
 @st.cache_resource
 def load_model():
-    with open('sentiment_model.pkl', 'rb') as file:
-        model = pickle.load(file)
+    # Load the pre-trained model
+    with open('sentiment_model.pkl', 'rb') as model_file:
+        model = pickle.load(model_file)
     return model
 
 @st.cache_resource
 def load_vectorizer():
-    with open('vectorizer.pkl', 'rb') as file:
-        vectorizer = pickle.load(file)
+    # Load the vectorizer used in training
+    with open('vectorizer.pkl', 'rb') as vec_file:
+        vectorizer = pickle.load(vec_file)
     return vectorizer
+
+# Load the dataset
+@st.cache_data
+def load_data():
+    df = pd.read_csv('movies.csv')
+    return df
 
 # Preprocess movie title text
 def preprocess_text(text):
@@ -52,12 +60,10 @@ def predict_rating_category_with_model(title, model, vectorizer, df):
 # Streamlit interface
 st.title("Movie Rating Prediction")
 
-# Load the model and vectorizer
+# Load the model, vectorizer, and dataset
 model = load_model()
 vectorizer = load_vectorizer()
-
-# Load dataset for movie look-up (for title-based predictions)
-df = pd.read_csv('movies.csv')
+df = load_data()
 
 movie_title = st.text_input("Enter Movie Title")
 
