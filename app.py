@@ -14,7 +14,6 @@ from scipy.sparse import hstack
 
 # Ensure the required NLTK resources are downloaded
 try:
-    # Try downloading the required resources
     nltk.download('punkt')
     nltk.download('stopwords')
     nltk.download('wordnet')
@@ -28,7 +27,12 @@ except LookupError:
     raise
 
 # Load the dataset
-df = pd.read_csv('movies.csv')
+@st.cache_data  # Cache the dataset to prevent reloading every time
+def load_data():
+    df = pd.read_csv('movies.csv')  # Or use st.file_uploader() to upload the CSV file
+    return df
+
+df = load_data()
 
 def categorize_rating(rating):
     if rating > 7:
@@ -42,40 +46,35 @@ def categorize_rating(rating):
 df['rating_category'] = df['rating'].apply(categorize_rating)
 
 def preprocess_text(text):
-    # Tokenization
     tokens = word_tokenize(str(text).lower())
     
-    # Remove stopwords and non-alphabetic tokens
     stop_words = set(stopwords.words('english'))
     tokens = [token for token in tokens if token.isalpha() and token not in stop_words]
     
-    # Lemmatization
     lemmatizer = WordNetLemmatizer()
     tokens = [lemmatizer.lemmatize(token) for token in tokens]
     
     return ' '.join(tokens)
 
-# Apply text preprocessing to the 'title' column (adjust if needed for another column)
+# Apply text preprocessing to the 'title' column
 df['processed_text'] = df['title'].apply(preprocess_text)
 
 # Replace zero ratings with a random value
 def replace_zero_ratings_with_random_value(rating):
     if rating == 0:
-        return random.uniform(5.1, 7)  # Random value between 5.1 and 7
+        return random.uniform(5.1, 7)
     else:
         return rating
 
-# Apply the function to the 'rating' column
 df['rating'] = df['rating'].apply(replace_zero_ratings_with_random_value)
 
 # Drop duplicates based on title
 df = df.drop_duplicates(subset='title', keep='last')
 
-# Feature extraction: TF-IDF for the movie title and adding the 'ratings' as a feature
+# Feature extraction: TF-IDF for movie title and adding 'ratings' as a feature
 vectorizer = TfidfVectorizer(max_features=1000)
 X_title = vectorizer.fit_transform(df['processed_text'])
 
-# Adding 'ratings' as a numerical feature to the dataset
 X_ratings = np.array(df['rating']).reshape(-1, 1)
 
 # Combine TF-IDF features and ratings (concatenating the matrices)
@@ -97,19 +96,15 @@ y_pred = model.predict(X_test)
 # Print classification report (optional)
 print(classification_report(y_test, y_pred))
 
-# Function to predict the rating category for a movie using the movie title
+# Function to predict rating category for a movie using the title
 def predict_rating_category_from_dataset(title, df):
-    # Check if the movie title exists in the dataset
+    # Check if the movie title exists in the dataset (case insensitive partial matching)
     movie_data = df[df['title'].str.contains(title, case=False, na=False)]
     
-    # If movie is found in the dataset
     if not movie_data.empty:
-        # Extract the rating from the dataset and convert it to a numeric value
         rating = pd.to_numeric(movie_data.iloc[0]['rating'], errors='coerce')  # Convert to numeric
         
-        # If rating is not NaN (i.e., valid rating value)
         if not pd.isna(rating):
-            # Predict the category based on the rating
             if rating >= 7:
                 return "Good"
             elif 5 <= rating < 7:
@@ -128,5 +123,6 @@ st.write("Enter a movie title, and I'll predict its rating category based on the
 movie_title = st.text_input("Enter Movie Title")
 
 if movie_title:
+    st.write("Predicting...")
     predicted_category = predict_rating_category_from_dataset(movie_title, df)
     st.write(f"Predicted Rating Category for '{movie_title}': {predicted_category}")
