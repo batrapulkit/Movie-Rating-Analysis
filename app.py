@@ -1,33 +1,31 @@
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-import pandas as pd
+import streamlit as st
 import pickle
+import random
+import numpy as np
 
-# Load your dataset
-df = pd.read_csv('movies.csv')
+# Load the trained model
+with open('sentiment_model.pkl', 'rb') as file:
+    model = pickle.load(file)
 
-# Preprocess the rating column to categorize it
-def categorize_rating(rating):
-    if rating > 7:
-        return 'Good'
-    elif 4.5 <= rating <= 6.9:
-        return 'Neutral'
-    else:
-        return 'Bad'
+# Streamlit interface
+st.title('Movie Rating Prediction')
+st.write("Enter the movie title and the rating to predict its rating category (Good, Neutral, or Bad).")
 
-df['rating_category'] = df['rating'].apply(categorize_rating)
+# Text input for the movie title and rating
+movie_title = st.text_input("Enter Movie Title")
+movie_rating = st.number_input("Enter Movie Rating", min_value=0.0, max_value=10.0, step=0.1)
 
-# Prepare the data with just the rating as the feature
-X = df[['rating']]  # Only use rating as the feature
-y = df['rating_category']
+if movie_title:
+    # If the rating is 0, replace it with a random rating for demonstration purposes
+    if movie_rating == 0:
+        movie_rating = random.uniform(5.1, 7)  # Assign a random value between 5.1 and 7
+    
+    # Create a numpy array for the rating (this should be the same format as during training)
+    X_input = np.array([[movie_rating]])
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Train the Logistic Regression model
-model = LogisticRegression()
-model.fit(X_train, y_train)
-
-# Save the trained model
-with open('sentiment_model.pkl', 'wb') as file:
-    pickle.dump(model, file)
+    # Predict the rating category
+    prediction = model.predict(X_input)
+    rating_category = prediction[0]
+    
+    # Display the prediction
+    st.write(f"The predicted rating category for '{movie_title}' with a rating of {movie_rating} is: **{rating_category}**")
