@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -36,7 +37,7 @@ def preprocess_text(text):
     return ' '.join(tokens)
 
 # Function to predict the rating category based on the movie title and rating
-def predict_rating_category_from_dataset(title, model, df, vectorizer):
+def predict_rating_category_from_dataset(title, model, df):
     # Check if the movie title exists in the dataset
     movie_data = df[df['title'].str.contains(title, case=False, na=False)]
     
@@ -46,6 +47,10 @@ def predict_rating_category_from_dataset(title, model, df, vectorizer):
         
         # Preprocess the movie title
         processed_title = preprocess_text(movie_data.iloc[0]['title'])
+        
+        # Re-create the TF-IDF vectorizer (since we don't have a saved vectorizer)
+        vectorizer = TfidfVectorizer(max_features=1000)
+        X_title = vectorizer.fit_transform(df['title'].apply(preprocess_text))
         
         # Convert the processed title to a TF-IDF vector
         title_vector = vectorizer.transform([processed_title])
@@ -62,16 +67,12 @@ def predict_rating_category_from_dataset(title, model, df, vectorizer):
 # Streamlit interface
 st.title("Movie Rating Prediction")
 
-# Load the model, dataset, and vectorizer (used for transforming titles)
+# Load the model and dataset
 model = load_model()
 df = load_data()
-
-# Initialize the vectorizer used during training (you need to load the vectorizer too)
-with open('vectorizer.pkl', 'rb') as vec_file:
-    vectorizer = pickle.load(vec_file)
 
 movie_title = st.text_input("Enter Movie Title")
 
 if movie_title:
-    predicted_category = predict_rating_category_from_dataset(movie_title, model, df, vectorizer)
+    predicted_category = predict_rating_category_from_dataset(movie_title, model, df)
     st.write(f"Predicted category for '{movie_title}': {predicted_category}")
