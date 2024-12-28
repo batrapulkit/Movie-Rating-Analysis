@@ -2,11 +2,16 @@ import streamlit as st
 import pandas as pd
 import pickle
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import nltk
+
+# Ensure necessary NLTK data is downloaded
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
 
 # Load the pre-trained model
 @st.cache_resource
