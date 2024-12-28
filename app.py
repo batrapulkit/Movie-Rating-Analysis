@@ -12,21 +12,20 @@ from nltk.stem import WordNetLemmatizer
 import nltk
 from scipy.sparse import hstack
 
-# Ensure that the required NLTK resources are downloaded
+# Ensure the required NLTK resources are downloaded
 try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
+    # Try downloading the required resources
     nltk.download('punkt')
-
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
     nltk.download('stopwords')
-
-try:
+    nltk.download('wordnet')
+    
+    # Check if the required NLTK data is available
+    nltk.data.find('tokenizers/punkt')
+    nltk.data.find('corpora/stopwords')
     nltk.data.find('corpora/wordnet')
 except LookupError:
-    nltk.download('wordnet')
+    st.error("Required NLTK resources are missing. Please check your environment.")
+    raise
 
 # Load the dataset
 df = pd.read_csv('movies.csv')
