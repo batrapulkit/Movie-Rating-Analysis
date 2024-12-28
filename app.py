@@ -1,62 +1,41 @@
 import streamlit as st
-import pandas as pd
 import pickle
+import random
+import pandas as pd
+import numpy as np
 
-# Load the pre-trained model and dataset
-@st.cache_resource
-def load_model():
-    """Load the pre-trained model."""
-    with open('sentiment_model.pkl', 'rb') as model_file:
-        model = pickle.load(model_file)
-    return model
+# Load the trained model
+with open('sentiment_model.pkl', 'rb') as file:
+    model = pickle.load(file)
 
-@st.cache_data
-def load_data():
-    """Load the dataset."""
-    # Replace with the correct path to your dataset
-    df = pd.read_csv('movies.csv')
-    return df
-
-# Function to categorize the rating into categories
+# Function to categorize the rating based on the model prediction
 def categorize_rating(rating):
-    """Categorizes the movie rating."""
-    if rating >= 7:
-        return "Good"
-    elif 5 <= rating < 7:
-        return "Neutral"
+    if rating > 7:
+        return 'Good'
+    elif 4.5 <= rating <= 6.9:
+        return 'Neutral'
     else:
-        return "Bad"
-
-# Function to predict the rating category for a movie using the movie title
-def predict_rating_category_from_dataset(title, df):
-    """Predicts the movie's rating category based on the title."""
-    movie_data = df[df['title'].str.contains(title, case=False, na=False)]
-    
-    if not movie_data.empty:
-        # Extract the rating from the dataset and convert it to a numeric value
-        rating = pd.to_numeric(movie_data.iloc[0]['rating'], errors='coerce')
-        
-        if not pd.isna(rating):
-            # Use categorize_rating to classify the rating
-            return categorize_rating(rating)
-        else:
-            return "Invalid rating data"
-    else:
-        return "Movie not found in dataset"
+        return 'Bad'
 
 # Streamlit interface
-st.title("Movie Rating Prediction")
+st.title('Movie Rating Prediction')
+st.write("Enter the movie title and the rating to predict its rating category (Good, Neutral, or Bad).")
 
+# Text input for the movie title and rating
 movie_title = st.text_input("Enter Movie Title")
+movie_rating = st.number_input("Enter Movie Rating", min_value=0.0, max_value=10.0, step=0.1)
 
-# When the user inputs a movie title
 if movie_title:
-    # Ensure that both the model and the data are loaded
-    model = load_model()
-    df = load_data()
-
-    # Get the predicted category from the function
-    predicted_category = predict_rating_category_from_dataset(movie_title, df)
+    # If the rating is 0, replace it with a random rating for demonstration purposes
+    if movie_rating == 0:
+        movie_rating = random.uniform(5.1, 7)  # Assign a random value between 5.1 and 7
     
-    # Display the predicted category
-    st.write(f"Predicted category for '{movie_title}': {predicted_category}")
+    # Create a numpy array for the rating (this should be the same format as during training)
+    X_input = np.array([[movie_rating]])
+
+    # Predict the rating category
+    prediction = model.predict(X_input)
+    rating_category = prediction[0]
+    
+    # Display the prediction
+    st.write(f"The predicted rating category for '{movie_title}' with a rating of {movie_rating} is: **{rating_category}**")
