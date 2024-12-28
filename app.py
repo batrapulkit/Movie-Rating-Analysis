@@ -10,7 +10,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import random
 
-# Download necessary NLTK resources (ensure this is available in your environment)
+# Ensure necessary NLTK resources are downloaded
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
