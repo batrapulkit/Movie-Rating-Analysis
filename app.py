@@ -51,5 +51,6 @@ st.title("Movie Rating Prediction")
 movie_title = st.text_input("Enter Movie Title")
 
 if movie_title:
+    # Call the function with the movie title
     predicted_category = predict_rating_category_from_dataset(movie_title, df)
     st.write(f"Predicted category for '{movie_title}': {predicted_category}")
