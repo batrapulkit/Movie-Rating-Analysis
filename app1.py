@@ -1,20 +1,23 @@
 import streamlit as st
 import pandas as pd
 import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from textblob import Word
 import random
 import nltk
+from textblob import Word
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
-# Ensure stopwords are downloaded if not already present
+# Ensure necessary NLTK resources are downloaded
 try:
     stop_words = set(stopwords.words('english'))
 except LookupError:
     nltk.download('stopwords')
     stop_words = set(stopwords.words('english'))
+
+try:
+    nltk.data.find('corpora/wordnet')
+except LookupError:
+    nltk.download('wordnet')
 
 # Load the pre-trained model and dataset
 @st.cache_resource
@@ -44,16 +47,19 @@ def load_data():
     
     return df
 
+# Initialize the lemmatizer
+lemmatizer = WordNetLemmatizer()
+
 # Preprocess text (title)
 def preprocess_text(text):
-    # Tokenization using simple split, no external library needed
+    # Tokenization using simple split
     tokens = text.split()
 
     # Remove stopwords
     tokens = [word.lower() for word in tokens if word.isalpha() and word.lower() not in stop_words]
     
-    # Lemmatization with TextBlob (it performs lemmatization)
-    tokens = [Word(word).lemmatize() for word in tokens]
+    # Lemmatization using WordNetLemmatizer
+    tokens = [lemmatizer.lemmatize(word) for word in tokens]
     
     return ' '.join(tokens)
 
