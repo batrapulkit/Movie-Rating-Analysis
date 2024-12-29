@@ -3,7 +3,6 @@ import pandas as pd
 import pickle
 import random
 import nltk
-from textblob import Word
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
@@ -161,14 +160,7 @@ movie_title = st.text_input("Enter Movie Title", key='movie_title', help="Type t
 df = load_data()
 model = load_model()
 
+# Predict and display rating category immediately after the user enters a title
 if movie_title:
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
     st.markdown(f"<p class='result'>Predicted category for <b>{movie_title}</b>: {predicted_category}</p>", unsafe_allow_html=True)
-
-# Button to Trigger the Prediction
-if st.button("Get Rating Category", use_container_width=True):
-    if movie_title:
-        predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
-        st.markdown(f"<p class='result'>Predicted category for <b>{movie_title}</b>: {predicted_category}</p>", unsafe_allow_html=True)
-    else:
-        st.error("Please enter a movie title!")
