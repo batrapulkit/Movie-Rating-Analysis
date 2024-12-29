@@ -1,8 +1,12 @@
 import streamlit as st
 import joblib
+import numpy as np
 
-# Load the pipeline (which includes the vectorizer and the model)
+# Load the trained model (you may or may not need this depending on your model)
 model = joblib.load("sentiment_model.pkl")
+
+# Create a new TfidfVectorizer instance (use the same parameters as when training)
+vectorizer = joblib.load("tfidf_vectorizer.pkl")  # If you have saved your vectorizer
 
 # Custom CSS for styling
 st.markdown("""
@@ -56,10 +60,16 @@ st.markdown("<h1 class='title'>Bollywood Movie Rating Predictor</h1>", unsafe_al
 # Movie Name Input
 movie_name = st.text_input("Enter Bollywood Movie Name", "")
 
-# Function to make predictions using the model (without manual vectorization)
+# Function to make predictions using the model with manual vectorization
 def predict_rating(movie_name):
-    # Use the pipeline to predict directly on the movie name
-    prediction = model.predict([movie_name])
+    # Reshape the input into a 2D array (needed for vectorization)
+    movie_name_reshaped = np.array([movie_name]).reshape(1, -1)  # Shape (1, 1)
+    
+    # Transform the movie name using the vectorizer
+    movie_name_vectorized = vectorizer.transform(movie_name_reshaped)  # Convert to a numeric vector
+    
+    # Predict using the model
+    prediction = model.predict(movie_name_vectorized)
     return prediction[0]
 
 # Predict Rating Button
