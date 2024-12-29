@@ -1,8 +1,7 @@
 import streamlit as st
 import joblib
-import numpy as np
 
-# Load the sentiment model (make sure the model file is correct)
+# Load the pipeline (which includes the vectorizer and the model)
 model = joblib.load("sentiment_model.pkl")
 
 # Custom CSS for styling
@@ -57,13 +56,10 @@ st.markdown("<h1 class='title'>Bollywood Movie Rating Predictor</h1>", unsafe_al
 # Movie Name Input
 movie_name = st.text_input("Enter Bollywood Movie Name", "")
 
-# Function to make predictions using the model
+# Function to make predictions using the model (without manual vectorization)
 def predict_rating(movie_name):
-    # Reshape the input to be a 2D array (needed by sklearn models)
-    movie_name_reshaped = np.array([movie_name]).reshape(1, -1)
-    
-    # Predict using the model
-    prediction = model.predict(movie_name_reshaped)
+    # Use the pipeline to predict directly on the movie name
+    prediction = model.predict([movie_name])
     return prediction[0]
 
 # Predict Rating Button
