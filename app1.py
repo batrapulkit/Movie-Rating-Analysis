@@ -2,7 +2,7 @@ import streamlit as st
 import joblib
 import numpy as np
 
-# Load the sentiment model (you can change this to load any model that fits your use case)
+# Load the sentiment model (make sure the model file is correct)
 model = joblib.load("sentiment_model.pkl")
 
 # Custom CSS for styling
@@ -59,10 +59,11 @@ movie_name = st.text_input("Enter Bollywood Movie Name", "")
 
 # Function to make predictions using the model
 def predict_rating(movie_name):
-    # Assuming the model expects a processed feature, 
-    # like a numerical representation of the movie name (for example, sentiment analysis model might need text)
-    # Here, we'll just predict a rating based on the movie name for demonstration
-    prediction = model.predict([movie_name])  # Modify this depending on your model's requirements
+    # Reshape the input to be a 2D array (needed by sklearn models)
+    movie_name_reshaped = np.array([movie_name]).reshape(1, -1)
+    
+    # Predict using the model
+    prediction = model.predict(movie_name_reshaped)
     return prediction[0]
 
 # Predict Rating Button
