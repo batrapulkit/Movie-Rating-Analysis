@@ -5,8 +5,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from textblob import Word
-from nltk.corpus import stopwords
 import random
+import nltk
+from nltk.corpus import stopwords
+
+# Ensure stopwords are downloaded if not already present
+try:
+    stop_words = set(stopwords.words('english'))
+except LookupError:
+    nltk.download('stopwords')
+    stop_words = set(stopwords.words('english'))
 
 # Load the pre-trained model and dataset
 @st.cache_resource
@@ -42,7 +50,6 @@ def preprocess_text(text):
     tokens = text.split()
 
     # Remove stopwords
-    stop_words = set(stopwords.words('english'))
     tokens = [word.lower() for word in tokens if word.isalpha() and word.lower() not in stop_words]
     
     # Lemmatization with TextBlob (it performs lemmatization)
@@ -142,14 +149,11 @@ st.markdown("<h1 class='title'>Movie Rating Prediction</h1>", unsafe_allow_html=
 st.markdown("<h2 class='subtitle'>Enter a Bollywood movie name, and get its predicted rating category.</h2>", unsafe_allow_html=True)
 
 # Input Box for Movie Title
-with st.container():
-    st.text_input("Enter Movie Title", key='movie_title', help="Type the name of the Bollywood movie", placeholder="e.g., Khel Khel Mein")
+movie_title = st.text_input("Enter Movie Title", key='movie_title', help="Type the name of the Bollywood movie", placeholder="e.g., Khel Khel Mein")
 
 # Load the model and data
 df = load_data()
 model = load_model()
-
-movie_title = st.session_state.get('movie_title', '')
 
 if movie_title:
     predicted_category = predict_rating_category_from_dataset(movie_title, df, model)
